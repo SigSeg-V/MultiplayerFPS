@@ -70,7 +70,7 @@ protected:
 
 protected:
 	// Props
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS Character")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "FPS Character")
 	int32 Health = 0;
 	
 	// Fns
@@ -91,7 +91,7 @@ protected:
 
 protected:
 	// Props
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS Character")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "FPS Character")
 	int32 Armor = 0;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS Character")

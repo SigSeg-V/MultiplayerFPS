@@ -77,23 +77,23 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	check(PlayerInputComponent)
 
 	// get our bindings and ad them to the mapping context
-	if (UEnhancedInputComponent* EInpComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-		EInpComponent != nullptr)
+	UEnhancedInputComponent* EInpComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (EInpComponent == nullptr || PlayerController == nullptr)
 	{
-		if (const APlayerController* PController = Cast<APlayerController>(GetController());
-			PController != nullptr)
-		{
-			if (UEnhancedInputLocalPlayerSubsystem* EInpSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PController->GetLocalPlayer());
-			EInpSubsystem != nullptr)
-			{
-				EInpSubsystem->AddMappingContext(IMC_Player, 1);
-			}
-		}
-		EInpComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AFPSCharacter::PlayerInputMove);
-		EInpComponent->BindAction(IA_Look, ETriggerEvent::Triggered, this, &AFPSCharacter::PlayerInputLook);
-		EInpComponent->BindAction(IA_Jump, ETriggerEvent::Triggered, this, &AFPSCharacter::PlayerInputJump);
+		return;
 	}
-
+	
+	UEnhancedInputLocalPlayerSubsystem* EnhancedSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+	if(EnhancedSubsystem == nullptr)
+	{
+		return;
+	}
+	EnhancedSubsystem->AddMappingContext(IMC_Player, 1);
+	
+	EInpComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AFPSCharacter::PlayerInputMove);
+	EInpComponent->BindAction(IA_Look, ETriggerEvent::Triggered, this, &AFPSCharacter::PlayerInputLook);
+	EInpComponent->BindAction(IA_Jump, ETriggerEvent::Started, this, &AFPSCharacter::PlayerInputJump);
 }
 
 void AFPSCharacter::PlayerInputMove(const FInputActionValue& Value)
@@ -129,13 +129,14 @@ void AFPSCharacter::PlayerInputLook(const FInputActionValue& Value)
 	// vertical mouse movement
 	if (InputValue.Y)
 	{
-		AddControllerPitchInput(InputValue.Y);
+		AddControllerPitchInput(-InputValue.Y);
 	}
 }
 
 void AFPSCharacter::PlayerInputJump(const FInputActionValue& Value)
 {
 }
+
 #pragma endregion
 
 #pragma region Armor
