@@ -13,5 +13,24 @@ UCLASS()
 class MULTIPLAYERFPS_API AFPSPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+public:
 	
+	void ToggleScoreboard() const;
+
+	UFUNCTION(Client, Reliable)
+	void ClientNotifyKill(const FString& Name);
+
+	UFUNCTION(Client, Reliable)
+	void ClientShowScoreboard();
+	
+protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS Player Controller")
+	TSubclassOf<class UPlayerMenu> PlayerMenuClass;
+
+	UPROPERTY()
+	UPlayerMenu* PlayerMenu;
+	
+	virtual void BeginPlay() override;
 };

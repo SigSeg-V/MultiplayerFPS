@@ -13,5 +13,24 @@ UCLASS()
 class MULTIPLAYERFPS_API AFPSPlayerState : public APlayerState
 {
 	GENERATED_BODY()
+
+public:
+
+	FORCEINLINE void AddKill() { ++Kills; }
+	FORCEINLINE int32 GetKills() const { return Kills; }
 	
+	FORCEINLINE void AddDeath() { ++Deaths; }
+	FORCEINLINE int32 GetDeaths() const { return Deaths; }
+
+	
+	
+protected:
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "FPS Player State")
+	int32 Kills;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "FPS Player State")
+	int32 Deaths;
+	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

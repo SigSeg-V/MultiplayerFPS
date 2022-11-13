@@ -59,6 +59,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* IA_Railgun;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_Scoreboard;
 	
 	// Fns
 	
@@ -127,17 +130,16 @@ protected:
 	// Fns
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS Character")
 	int32 MaxHealth = 100;
-
+public:
 	FORCEINLINE void AddHealth(const int32 Amount) { SetHealth(Health + Amount); }
 
 	FORCEINLINE void RemoveHealth(const int32 Amount) { SetHealth(Health - Amount); }
 
 	FORCEINLINE void SetHealth(const int32 NewHealth) { Health = FMath::Clamp(NewHealth, 0, MaxHealth); }
+	
+	void ApplyDamage(int Damage, AFPSCharacter* OtherCharacter);
 
 	FORCEINLINE bool IsDead() const { return !Health; }
-
-public:
-	void ApplyDamage(int Damage, AFPSCharacter* OtherCharacter);
 
 #pragma endregion
 
@@ -155,10 +157,10 @@ protected:
 	float ArmorAbsorption = 0.15f;
 	
 	// Fns
+public:
+	FORCEINLINE void AddArmor(const int32 Amount) { SetArmor(Armor + Amount); }
 
-	FORCEINLINE void AddArmor(const int32 Amount) { SetHealth(Armor + Amount); }
-
-	FORCEINLINE void RemoveArmor(const int32 Amount) { SetHealth(Armor - Amount); }
+	FORCEINLINE void RemoveArmor(const int32 Amount) { SetArmor(Armor - Amount); }
 
 	FORCEINLINE void SetArmor(const int32 NewArmor) { Armor = FMath::Clamp(NewArmor, 0, MaxArmor); }
 
@@ -180,6 +182,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS Character")
 	USoundBase* WeaponChangeSound;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS Character")
+	USoundBase* PainSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS Character")
+	USoundBase* LandSound;
+
+
 #pragma endregion
 
 #pragma region Weapon
@@ -196,8 +205,10 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "FPS Character")
 	AWeapon* Weapon;
 
+public:
 	void AddWeapon(EWeaponType WeaponType);
-	
+
+protected:
 	int32 WeaponIndex = INDEX_NONE;
 
 	bool EquipWeapon(EWeaponType WeaponType, bool bPlaySound = true);
@@ -253,4 +264,13 @@ public:
 
 #pragma endregion
 
+protected:
+	UPROPERTY()
+	class AMultiplayerFPSGameModeBase* GameMode;
+
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void FellOutOfWorld(const UDamageType& DmgType) override;
+	virtual void Landed(const FHitResult& Hit) override;
+	void Scoreboard(const FInputActionValue& Value);
 };

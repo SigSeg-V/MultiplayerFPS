@@ -11,6 +11,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "FPSPlayerController.h"
+#include "MultiplayerFPSGameModeBase.h"
 
 #pragma region Overrides
 
@@ -60,6 +62,9 @@ void AFPSCharacter::BeginPlay()
 	}
 
 	EquipWeapon(EWeaponType::MachineGun, false);
+
+	// get a reference of the current game mode
+	GameMode = Cast<AMultiplayerFPSGameModeBase>(GetWorld()->GetAuthGameMode());
 }
 
 // Called every frame
@@ -119,6 +124,8 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	EInpComponent->BindAction(IA_Railgun, ETriggerEvent::Started, this, &AFPSCharacter::Railgun);
 	EInpComponent->BindAction(IA_PrevWeapon, ETriggerEvent::Started, this, &AFPSCharacter::PrevWeapon);
 	EInpComponent->BindAction(IA_NextWeapon, ETriggerEvent::Started,this, &AFPSCharacter::NextWeapon);
+
+	EInpComponent->BindAction(IA_Scoreboard, ETriggerEvent::Started, this, &AFPSCharacter::Scoreboard);
 }
 
 void AFPSCharacter::PlayerInputMove(const FInputActionValue& Value)
@@ -251,6 +258,15 @@ void AFPSCharacter::ApplyDamage(int Damage, AFPSCharacter* OtherCharacter)
 	{
 		OtherCharacter->ClientPlaySound2D(HitSound);
 	}
+
+	// notify that the play was killed
+	if (IsDead())
+	{
+		if (GameMode)
+		{
+			GameMode->OnKill(OtherCharacter->GetController(), GetController());
+		}
+	}
 }
 
 void AFPSCharacter::ArmorAbsorbDamage(int32& Damage)
@@ -354,3 +370,41 @@ int32 AFPSCharacter::GetWeaponAmmo() const
 	return Weapon != nullptr ? Ammo[ENUM_TO_I32(Weapon->GetAmmoType())] : 0;
 }
 #pragma endregion 
+
+
+void AFPSCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	for (AWeapon* WeaponToDestroy : Weapons)
+	{
+		WeaponToDestroy->Destroy();
+	}
+}
+
+void AFPSCharacter::FellOutOfWorld(const UDamageType& DmgType)
+{
+	Super::FellOutOfWorld(DmgType);
+
+	if (GameMode)
+	{
+		GameMode->OnKill(nullptr, GetController());
+	}
+}
+
+void AFPSCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	UGameplayStatics::PlaySound2D(GetWorld(), LandSound);
+}
+
+void AFPSCharacter::Scoreboard(const FInputActionValue& Value)
+{
+	const AFPSPlayerController* PlayerController = Cast<AFPSPlayerController>(GetController());
+
+	if (PlayerController != nullptr)
+	{
+		PlayerController->ToggleScoreboard();
+	}
+}

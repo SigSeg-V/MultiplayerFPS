@@ -3,3 +3,32 @@
 
 #include "FPSGameState.h"
 
+#include "FPSPlayerState.h"
+#include "GameFramework/PlayerState.h"
+#include "Net/UnrealNetwork.h"
+
+void AFPSGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AFPSGameState, KillLimit);
+}
+
+TArray<AFPSPlayerState*> AFPSGameState::GetPlayerStatesOrderedByKills() const
+{
+	TArray<AFPSPlayerState*> Res;
+
+	for (APlayerState* PState : PlayerArray)
+	{
+		AFPSPlayerState* FPSPState = Cast<AFPSPlayerState>(PState);
+
+		Res.Add(FPSPState);
+	}
+	Res.Sort(
+	[](const AFPSPlayerState& A, const AFPSPlayerState& B)
+	{
+		return A.GetKills() > B.GetKills();
+	});
+	
+	return Res;
+}
