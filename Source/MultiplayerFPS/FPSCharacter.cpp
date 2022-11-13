@@ -47,7 +47,19 @@ void AFPSCharacter::BeginPlay()
 
 	SetHealth(MaxHealth);
 	SetArmor(0);
-	
+
+	constexpr int32 WeaponCount = ENUM_TO_I32(EWeaponType::MAX);
+	Weapons.Init(nullptr, WeaponCount);
+
+	constexpr int32 AmmoCount = ENUM_TO_I32(EWeaponType::MAX);
+	Ammo.Init(50, AmmoCount);
+
+	for (int32 i = 0; i < WeaponCount; i++)
+	{
+		AddWeapon(static_cast<EWeaponType>(i));
+	}
+
+	EquipWeapon(EWeaponType::MachineGun, false);
 }
 
 // Called every frame
@@ -64,6 +76,11 @@ void AFPSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	// Rep health and armor
 	DOREPLIFETIME_CONDITION(AFPSCharacter, Health, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AFPSCharacter, Armor, COND_OwnerOnly);
+
+	// Rep weaps
+	DOREPLIFETIME_CONDITION(AFPSCharacter, Weapon, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AFPSCharacter, Weapons, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AFPSCharacter, Ammo, COND_OwnerOnly);
 }
 
 #pragma endregion
@@ -94,6 +111,14 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	EInpComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AFPSCharacter::PlayerInputMove);
 	EInpComponent->BindAction(IA_Look, ETriggerEvent::Triggered, this, &AFPSCharacter::PlayerInputLook);
 	EInpComponent->BindAction(IA_Jump, ETriggerEvent::Started, this, &AFPSCharacter::PlayerInputJump);
+
+	EInpComponent->BindAction(IA_Fire, ETriggerEvent::Started, this, &AFPSCharacter::StartFire);
+	EInpComponent->BindAction(IA_Fire, ETriggerEvent::Completed, this, &AFPSCharacter::StopFire);
+	EInpComponent->BindAction(IA_Pistol, ETriggerEvent::Started, this, &AFPSCharacter::Pistol);
+	EInpComponent->BindAction(IA_MachineGun, ETriggerEvent::Started, this, &AFPSCharacter::MachineGun);
+	EInpComponent->BindAction(IA_Railgun, ETriggerEvent::Started, this, &AFPSCharacter::Railgun);
+	EInpComponent->BindAction(IA_PrevWeapon, ETriggerEvent::Started, this, &AFPSCharacter::PrevWeapon);
+	EInpComponent->BindAction(IA_NextWeapon, ETriggerEvent::Started,this, &AFPSCharacter::NextWeapon);
 }
 
 void AFPSCharacter::PlayerInputMove(const FInputActionValue& Value)
@@ -137,9 +162,96 @@ void AFPSCharacter::PlayerInputJump(const FInputActionValue& Value)
 {
 }
 
+void AFPSCharacter::StartFire(const FInputActionValue& Value)
+{
+	if (Weapon)
+	{
+		Weapon->ServerStartFire();
+	}
+}
+
+void AFPSCharacter::StopFire(const FInputActionValue& Value)
+{
+	if (Weapon)
+{
+	Weapon->ServerStopFire();
+}
+}
+
+void AFPSCharacter::Pistol(const FInputActionValue& Value)
+{
+	ServerEquipWeapon(EWeaponType::Pistol);
+}
+
+void AFPSCharacter::MachineGun(const FInputActionValue& Value)
+{
+	ServerEquipWeapon(EWeaponType::MachineGun);
+}
+
+void AFPSCharacter::Railgun(const FInputActionValue& Value)
+{
+	ServerEquipWeapon(EWeaponType::Railgun);
+}
+
+void AFPSCharacter::NextWeapon(const FInputActionValue& Value)
+{
+	ServerCycleWeapons(1);
+}
+
+void AFPSCharacter::PrevWeapon(const FInputActionValue& Value)
+{
+	ServerCycleWeapons(-1);
+}
+
+FVector AFPSCharacter::GetCameraLocation() const
+{
+	return GetActorLocation();
+}
+
+FVector AFPSCharacter::GetCameraDirection() const
+{
+	return GetActorForwardVector();
+}
+
+void AFPSCharacter::ServerEquipWeapon_Implementation(EWeaponType WeaponType)
+{
+	EquipWeapon(WeaponType);
+}
+
+void AFPSCharacter::ServerCycleWeapons_Implementation(int32 Direction)
+{
+	const int32 WeaponCount = Weapons.Num();
+	const int32 StartWeaponIndex =
+	GetSafeWrappedIndex(WeaponIndex,
+	WeaponCount, Direction);
+	for (int32 i = StartWeaponIndex; i != WeaponIndex; i = GetSafeWrappedIndex(i,WeaponCount, Direction))
+	{
+		if (EquipWeapon(static_cast<EWeaponType>(i)))
+		{
+			break;
+		}
+	}
+}
+
 #pragma endregion
 
 #pragma region Armor
+
+void AFPSCharacter::ApplyDamage(int Damage, AFPSCharacter* OtherCharacter)
+{
+	if (IsDead())
+	{
+		return;
+	}
+	
+	ArmorAbsorbDamage(Damage);
+	RemoveHealth(Damage);
+	
+	if (HitSound && OtherCharacter)
+	{
+		OtherCharacter->ClientPlaySound2D(HitSound);
+	}
+}
 
 void AFPSCharacter::ArmorAbsorbDamage(int32& Damage)
 {
@@ -155,4 +267,90 @@ void AFPSCharacter::ArmorAbsorbDamage(int32& Damage)
 }
 
 
+#pragma endregion
+
+#pragma region Generic RPCs
+
+void AFPSCharacter::MulticastPlayAnimMontage_Implementation(UAnimMontage* AnimMontage)
+{
+	PlayAnimMontage(AnimMontage);
+}
+
+void AFPSCharacter::ClientPlaySound2D_Implementation(USoundBase* Sound)
+{
+	UGameplayStatics::PlaySound2D(GetWorld(), Sound);
+}
+
+#pragma endregion
+
+#pragma region Weapons
+void AFPSCharacter::AddWeapon(EWeaponType WeaponType)
+{
+	const int32 NewWeaponIndex = ENUM_TO_I32(WeaponType);
+	if (!WeaponClasses.IsValidIndex(NewWeaponIndex) || Weapons[NewWeaponIndex])
+	{
+		return;
+	}
+
+	UClass* WeaponClass = WeaponClasses[NewWeaponIndex];
+	if(!WeaponClass)
+	{
+		return;
+	}
+
+	FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
+
+	SpawnParameters.Owner = this;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	AWeapon* NewWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass, SpawnParameters);
+	if (NewWeapon == nullptr)
+	{
+		return;
+	}
+
+	NewWeapon->SetActorHiddenInGame(true);
+	Weapons[NewWeaponIndex] = NewWeapon;
+	NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "GripPoint");
+}
+
+bool AFPSCharacter::EquipWeapon(EWeaponType WeaponType, bool bPlaySound)
+{
+	const int32 NewWeaponIndex = ENUM_TO_I32(WeaponType);
+
+	// check for valid index
+	if(!Weapons.IsValidIndex(NewWeaponIndex))
+	{
+		return false;
+	}
+
+	AWeapon* NewWeapon = Weapons[NewWeaponIndex];
+
+	if (NewWeapon == nullptr || Weapon == NewWeapon)
+	{
+		return false;
+	}
+
+	// hide the old weapon
+	if (Weapon)
+	{
+		Weapon->SetActorHiddenInGame(true);
+	}
+
+	// show the new weapon
+	Weapon = NewWeapon;
+	Weapon->SetActorHiddenInGame(false);
+
+	WeaponIndex = NewWeaponIndex;
+
+	if (WeaponChangeSound && bPlaySound)
+	{
+		ClientPlaySound2D(WeaponChangeSound);
+	}
+	return true;
+}
+
+int32 AFPSCharacter::GetWeaponAmmo() const
+{
+	return Weapon != nullptr ? Ammo[ENUM_TO_I32(Weapon->GetAmmoType())] : 0;
+}
 #pragma endregion 
