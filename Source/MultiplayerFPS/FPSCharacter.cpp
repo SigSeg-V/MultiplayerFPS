@@ -205,12 +205,12 @@ void AFPSCharacter::PrevWeapon(const FInputActionValue& Value)
 
 FVector AFPSCharacter::GetCameraLocation() const
 {
-	return GetActorLocation();
+	return Camera->GetComponentLocation();
 }
 
 FVector AFPSCharacter::GetCameraDirection() const
 {
-	return GetActorForwardVector();
+	return GetControlRotation().Vector();
 }
 
 void AFPSCharacter::ServerEquipWeapon_Implementation(EWeaponType WeaponType)
