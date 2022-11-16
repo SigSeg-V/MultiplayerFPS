@@ -25,6 +25,20 @@ public:
 	// Sets default values for this character's properties
 	AFPSCharacter();
 
+#pragma region Character Constants
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "FPS Character|Movement")
+	float WalkSpeed = 800.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FPS Character|Movement")
+	float SprintSpeed = 1200.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FPS Character|Movement")
+	float JumpVelocity = 600.f;
+
+#pragma endregion
 
 #pragma region Inputs
 
@@ -62,6 +76,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* IA_Scoreboard;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	bool SwapYAxis = false;
 	
 	// Fns
 	
@@ -73,10 +90,7 @@ protected:
 
 	// For enhanced input movement
 	void PlayerInputLook(const FInputActionValue &Value);
-
-	// For enhanced input movement
-	void PlayerInputJump(const FInputActionValue &Value);
-
+	
 	//Called on first mouse down
 	void StartFire(const FInputActionValue& Value);
 
@@ -99,7 +113,7 @@ protected:
 	void PrevWeapon(const FInputActionValue& Value);
 
 	UFUNCTION(Server, Reliable)
-	void ServerCycleWeapons(int32 Direction);
+	void ServerCycleWeapons(int32 Step);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeapon(EWeaponType WeaponType);
@@ -239,7 +253,7 @@ public:
 
 #pragma endregion
 
-#pragma region Generic RPCs
+#pragma region RPC
 
 public:
 	UFUNCTION(NetMulticast, Unreliable)
@@ -257,10 +271,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 #pragma endregion
 

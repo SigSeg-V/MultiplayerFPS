@@ -11,6 +11,7 @@
 /DELAY:UNLOAD
 /DLL
 /PDBALTPATH:%_PDB%
+/fastfail
 /OPT:NOREF
 /OPT:NOICF
 /INCREMENTAL:NO
@@ -19,7 +20,6 @@
 /DELAYLOAD:"d3d12.dll"
 /DELAYLOAD:"DBGHELP.DLL"
 /LIBPATH:"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\lib\x64"
-/LIBPATH:"C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\lib\um\x64"
 /LIBPATH:"C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\ucrt\x64"
 /LIBPATH:"C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\um\x64"
 /NODEFAULTLIB:"LIBCMT"
@@ -32,13 +32,13 @@
 /NODEFAULTLIB:"LIBCP"
 /NODEFAULTLIB:"LIBCD"
 /NODEFAULTLIB:"LIBCPD"
-/FUNCTIONPADMIN
-"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLogging\Module.RiderLogging.cpp.obj"
-"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLogging\Default.rc2.res"
+/FUNCTIONPADMIN:6
+"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLogging\Module.RiderLogging.cpp.obj"
+"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLogging\Default.rc2.res"
 "..\Intermediate\Build\Win64\UnrealEditor\Development\Core\UnrealEditor-Core.lib"
-"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RD\UnrealEditor-RD.lib"
-"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLink\UnrealEditor-RiderLink.lib"
-"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderBlueprint\UnrealEditor-RiderBlueprint.lib"
+"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RD\UnrealEditor-RD.lib"
+"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLink\UnrealEditor-RiderLink.lib"
+"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderBlueprint\UnrealEditor-RiderBlueprint.lib"
 "delayimp.lib"
 "wininet.lib"
 "rpcrt4.lib"
@@ -63,7 +63,7 @@
 "setupapi.lib"
 "dwmapi.lib"
 "imm32.lib"
-/OUT:"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Binaries\Win64\UnrealEditor-RiderLogging.dll"
-/IMPLIB:"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLogging\UnrealEditor-RiderLogging.suppressed.lib"
-/PDB:"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Binaries\Win64\UnrealEditor-RiderLogging.pdb"
+/OUT:"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Binaries\Win64\UnrealEditor-RiderLogging.dll"
+/IMPLIB:"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLogging\UnrealEditor-RiderLogging.suppressed.lib"
+/PDB:"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Binaries\Win64\UnrealEditor-RiderLogging.pdb"
 /ignore:4078

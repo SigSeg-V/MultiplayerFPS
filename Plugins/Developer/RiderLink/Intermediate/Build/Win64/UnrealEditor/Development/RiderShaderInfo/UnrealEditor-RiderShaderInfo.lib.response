@@ -6,6 +6,6 @@
 /NAME:"UnrealEditor-RiderShaderInfo.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\RiderShaderInfo.cpp.obj"
-"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\Default.rc2.res"
-/OUT:"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\UnrealEditor-RiderShaderInfo.lib"
+"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\RiderShaderInfo.cpp.obj"
+"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\Default.rc2.res"
+/OUT:"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\UnrealEditor-RiderShaderInfo.lib"

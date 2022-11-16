@@ -3,26 +3,26 @@
 UENUM()
 enum class EWeaponType : uint8
 {
-	Pistol UMETA(Display Name = "Glock 18"),
-	Railgun UMETA(Display Name = "Signal .50"),
-	MachineGun UMETA(Display Name = "M249 SAW"),
+	Pistol ,//UMETA(DisplayName = "Glock 18"),
+	Railgun ,//UMETA(DisplayName = "Signal .50"),
+	MachineGun ,//UMETA(DisplayName = "M249 SAW"),
 	MAX,
 };
 
 UENUM()
 enum class ERoundType : uint8
 {
-	NineMM UMETA(Display Name = "9mm Parabellum"),
-	FiftyCal UMETA(Display Name = ".50 AP Caliber"),
-	FiveFiveSix UMETA(Display Name = "5.56 NATO"),
+	NineMM ,//UMETA(DisplayName = "9mm Parabellum"),
+	FiftyCal ,//UMETA(DisplayName = ".50 AP Caliber"),
+	FiveFiveSix ,//UMETA(DisplayName = "5.56 NATO"),
 	MAX,
 };
 
 UENUM()
 enum class EFireMode : uint8
 {
-	Single UMETA(Display Name = "Single Fire"),
-	Burst UMETA(Display Name = "Burst Fire"),
-	Automatic UMETA(Display Name = "Automatic Fire"),
+	Single ,//UMETA(DisplayName = "Single Fire"),
+	Burst ,//UMETA(DisplayName = "Burst Fire"),
+	Automatic ,//UMETA(DisplayName = "Automatic Fire"),
 	MAX,
 };

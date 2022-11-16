@@ -1,4 +1,4 @@
-E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Source\RiderShaderInfo\RiderShaderInfo.cpp
+"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Source\RiderShaderInfo\RiderShaderInfo.cpp"
 /I .
 /I Runtime
 /I Runtime\TraceLog\Public
@@ -7,17 +7,17 @@ E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Source\RiderSha
 /I Runtime\Json\Public
 /I Runtime\RenderCore\Public
 /I Runtime\RHI\Public
-/I E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Source
-/I ThirdParty\mimalloc\include
-/I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\INCLUDE"
-/I "C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt"
-/FI"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\Definitions.h"
-/Fo"E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\RiderShaderInfo.cpp.obj"
-/sourceDependencies E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\RiderShaderInfo.cpp.json
+/I "E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Source"
+/external:W0
+/external:I ThirdParty\mimalloc\include
+/external:I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\INCLUDE"
+/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt"
+/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared"
+/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um"
+/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt"
+/FI"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\Definitions.h"
+/Fo"E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\RiderShaderInfo.cpp.obj"
+/sourceDependencies "E:\UnrealProjects\VSC\MultiplayerFPS 5.1\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\RiderShaderInfo.cpp.dep.json"
 /Zc:inline
 /nologo
 /Oi
@@ -34,6 +34,7 @@ E:\UnrealProjects\VSC\MultiplayerFPS\Plugins\Developer\RiderLink\Source\RiderSha
 /source-charset:utf-8
 /execution-charset:utf-8
 /Ob2
+/fastfail
 /Ox
 /Ot
 /GF

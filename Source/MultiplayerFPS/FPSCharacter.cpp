@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+// ReSharper disable CppMemberFunctionMayBeConst
+
 #include "FPSCharacter.h"
 
 #include "Kismet/KismetMathLibrary.h"
@@ -32,8 +34,8 @@ AFPSCharacter::AFPSCharacter()
 	Camera->SetupAttachment(GetMesh(), "Camera");
 
 	// Set movement constants
-	GetCharacterMovement()->MaxWalkSpeed = 800.f;
-	GetCharacterMovement()->JumpZVelocity = 600.f;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	GetCharacterMovement()->JumpZVelocity = JumpVelocity;
 }
 
 // Called when the game starts or when spawned
@@ -50,12 +52,14 @@ void AFPSCharacter::BeginPlay()
 	SetHealth(MaxHealth);
 	SetArmor(0);
 
+	// Init weapons and armor so we start with something
 	constexpr int32 WeaponCount = ENUM_TO_I32(EWeaponType::MAX);
 	Weapons.Init(nullptr, WeaponCount);
 
 	constexpr int32 AmmoCount = ENUM_TO_I32(EWeaponType::MAX);
 	Ammo.Init(50, AmmoCount);
 
+	// I'm giving all the weapons here but might change this to start with a pistol only?
 	for (int32 i = 0; i < WeaponCount; i++)
 	{
 		AddWeapon(static_cast<EWeaponType>(i));
@@ -63,15 +67,8 @@ void AFPSCharacter::BeginPlay()
 
 	EquipWeapon(EWeaponType::MachineGun, false);
 
-	// get a reference of the current game mode
+	// reference game mode for kills/deaths
 	GameMode = Cast<AMultiplayerFPSGameModeBase>(GetWorld()->GetAuthGameMode());
-}
-
-// Called every frame
-void AFPSCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 void AFPSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -112,32 +109,35 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		return;
 	}
 	EnhancedSubsystem->AddMappingContext(IMC_Player, 1);
-	
+
+	// Movement inputs
 	EInpComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AFPSCharacter::PlayerInputMove);
 	EInpComponent->BindAction(IA_Look, ETriggerEvent::Triggered, this, &AFPSCharacter::PlayerInputLook);
-	EInpComponent->BindAction(IA_Jump, ETriggerEvent::Started, this, &AFPSCharacter::PlayerInputJump);
 
+	// Fire inputs
 	EInpComponent->BindAction(IA_Fire, ETriggerEvent::Started, this, &AFPSCharacter::StartFire);
 	EInpComponent->BindAction(IA_Fire, ETriggerEvent::Completed, this, &AFPSCharacter::StopFire);
+
+	// Weapon swap inputs
 	EInpComponent->BindAction(IA_Pistol, ETriggerEvent::Started, this, &AFPSCharacter::Pistol);
 	EInpComponent->BindAction(IA_MachineGun, ETriggerEvent::Started, this, &AFPSCharacter::MachineGun);
 	EInpComponent->BindAction(IA_Railgun, ETriggerEvent::Started, this, &AFPSCharacter::Railgun);
 	EInpComponent->BindAction(IA_PrevWeapon, ETriggerEvent::Started, this, &AFPSCharacter::PrevWeapon);
 	EInpComponent->BindAction(IA_NextWeapon, ETriggerEvent::Started,this, &AFPSCharacter::NextWeapon);
 
+	// UI Inputs
 	EInpComponent->BindAction(IA_Scoreboard, ETriggerEvent::Started, this, &AFPSCharacter::Scoreboard);
 }
 
 void AFPSCharacter::PlayerInputMove(const FInputActionValue& Value)
 {
 
-	// movement from mapping context
+	// movement input from mapping context
 	const FVector2D InputValue = Value.Get<FVector2D>();
 	
 	// Got movement horizontally
 	if (InputValue.X)
 	{
-		// Get right perpendicular vec to what camera is pointing at
 		AddMovementInput(GetActorRightVector(), InputValue.X);
 	}
 	// Got movement forward
@@ -147,9 +147,10 @@ void AFPSCharacter::PlayerInputMove(const FInputActionValue& Value)
 	}
 }
 
+// applies (un)negated input for looking around 
 void AFPSCharacter::PlayerInputLook(const FInputActionValue& Value)
 {
-	// movement from mapping context
+	// looking input from mapping context
 	const FVector2D InputValue = Value.Get<FVector2D>();
 
 	// horizontal mouse movement
@@ -161,12 +162,9 @@ void AFPSCharacter::PlayerInputLook(const FInputActionValue& Value)
 	// vertical mouse movement
 	if (InputValue.Y)
 	{
-		AddControllerPitchInput(-InputValue.Y);
+		// by default Y axis is inverted, so negated as per user setting
+		AddControllerPitchInput((SwapYAxis? 1 : -1) * InputValue.Y);
 	}
-}
-
-void AFPSCharacter::PlayerInputJump(const FInputActionValue& Value)
-{
 }
 
 void AFPSCharacter::StartFire(const FInputActionValue& Value)
@@ -225,13 +223,12 @@ void AFPSCharacter::ServerEquipWeapon_Implementation(EWeaponType WeaponType)
 	EquipWeapon(WeaponType);
 }
 
-void AFPSCharacter::ServerCycleWeapons_Implementation(int32 Direction)
+void AFPSCharacter::ServerCycleWeapons_Implementation(int32 Step)
 {
 	const int32 WeaponCount = Weapons.Num();
 	const int32 StartWeaponIndex =
-	GetSafeWrappedIndex(WeaponIndex,
-	WeaponCount, Direction);
-	for (int32 i = StartWeaponIndex; i != WeaponIndex; i = GetSafeWrappedIndex(i,WeaponCount, Direction))
+	GetSafeWrappedIndex(WeaponIndex, WeaponCount, Step);
+	for (int32 i = StartWeaponIndex; i != WeaponIndex; i = GetSafeWrappedIndex(i,WeaponCount, Step))
 	{
 		if (EquipWeapon(static_cast<EWeaponType>(i)))
 		{
@@ -332,27 +329,24 @@ void AFPSCharacter::AddWeapon(EWeaponType WeaponType)
 bool AFPSCharacter::EquipWeapon(EWeaponType WeaponType, bool bPlaySound)
 {
 	const int32 NewWeaponIndex = ENUM_TO_I32(WeaponType);
-
-	// check for valid index
 	if(!Weapons.IsValidIndex(NewWeaponIndex))
 	{
 		return false;
 	}
 
 	AWeapon* NewWeapon = Weapons[NewWeaponIndex];
-
+	
 	if (NewWeapon == nullptr || Weapon == NewWeapon)
 	{
 		return false;
 	}
 
-	// hide the old weapon
+	// Swapping out the weapons
 	if (Weapon)
 	{
 		Weapon->SetActorHiddenInGame(true);
 	}
 
-	// show the new weapon
 	Weapon = NewWeapon;
 	Weapon->SetActorHiddenInGame(false);
 

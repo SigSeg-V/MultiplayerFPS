@@ -76,6 +76,10 @@
 #ifdef _WIN32
 #pragma warning( push )
 #pragma warning( disable:4668 )
+
+// Getting rid of the deprecated fn warning - Jetbrain's problem not mine
+// #define _WINSOCK_DEPRECATED_NO_WARNINGS 0x1
+
 	#include <io.h>
 	#include <winsock2.h>
 	#include <Ws2tcpip.h>
