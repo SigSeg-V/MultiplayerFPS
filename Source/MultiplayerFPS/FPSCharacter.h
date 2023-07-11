@@ -29,12 +29,20 @@ public:
 
 protected:
 
+	float CurrentSpeedMultiplier = 1.f;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "FPS Character|Movement")
 	float WalkSpeed = 800.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FPS Character|Movement")
+	float WalkSpeedMultiplier = 1.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "FPS Character|Movement")
 	float SprintSpeed = 1200.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "FPS Character|Movement")
+	float SprintSpeedMultiplier = 1.3f;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "FPS Character|Movement")
 	float JumpVelocity = 600.f;
 
@@ -78,6 +86,9 @@ protected:
 	class UInputAction* IA_Scoreboard;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_Sprint;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
 	bool SwapYAxis = false;
 	
 	// Fns
@@ -85,6 +96,9 @@ protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void PlayerInputSprintStart(const FInputActionValue &Value);
+	void PlayerInputSprintStop(const FInputActionValue &Value);
+	
 	// For enhanced input movement
 	void PlayerInputMove(const FInputActionValue &Value);
 
@@ -219,6 +233,9 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "FPS Character")
 	AWeapon* Weapon;
 
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "FPS Character")
+	AWeapon* FirstPersonWeapon;
+
 public:
 	void AddWeapon(EWeaponType WeaponType);
 
@@ -274,6 +291,20 @@ protected:
 
 #pragma endregion
 
+#pragma region First Person
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS Character|First Person")
+	class USkeletalMeshComponent* FirstPersonMesh;
+public:
+	UFUNCTION(BlueprintPure, Category = "Weapon")
+	FORCEINLINE class USkeletalMeshComponent* GetFirstPersonMesh() const { return FirstPersonMesh; }
+
+	UFUNCTION(BlueprintPure, Category = "Weapon")
+		FORCEINLINE class USkeletalMeshComponent* GetThirdPersonMesh() const { return GetMesh(); }
+
+#pragma endregion
+	
 protected:
 	UPROPERTY()
 	class AMultiplayerFPSGameModeBase* GameMode;

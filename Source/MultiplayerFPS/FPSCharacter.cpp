@@ -23,18 +23,27 @@ AFPSCharacter::AFPSCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+	
+	// Setup arms
+	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("First Person Arms"));
+	FirstPersonMesh->SetupAttachment(GetMesh());
+	FirstPersonMesh->bOnlyOwnerSee = true;
 
+	// floating arms with shadows doesn't look good so let our arms not cast shadows, and our invis body cast shadow
+	FirstPersonMesh->CastShadow = false;
+	GetMesh()->bCastHiddenShadow = true;
+	
 	// Set up player camera
 	Camera = CreateEditorOnlyDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-
+	
 	// Rotate with player's mesh
 	Camera->bUsePawnControlRotation = true;
-
+	
 	// Attach Camera to the socket in skeleton
-	Camera->SetupAttachment(GetMesh(), "Camera");
-
+	Camera->SetupAttachment(FirstPersonMesh, "Camera");
+	
 	// Set movement constants
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * SprintSpeedMultiplier;
 	GetCharacterMovement()->JumpZVelocity = JumpVelocity;
 }
 
@@ -114,6 +123,10 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	EInpComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AFPSCharacter::PlayerInputMove);
 	EInpComponent->BindAction(IA_Look, ETriggerEvent::Triggered, this, &AFPSCharacter::PlayerInputLook);
 
+	// Sprinting
+	EInpComponent->BindAction(IA_Sprint, ETriggerEvent::Started, this, &AFPSCharacter::PlayerInputSprintStart);
+	EInpComponent->BindAction(IA_Sprint, ETriggerEvent::Completed, this, &AFPSCharacter::PlayerInputSprintStop);
+	
 	// Fire inputs
 	EInpComponent->BindAction(IA_Fire, ETriggerEvent::Started, this, &AFPSCharacter::StartFire);
 	EInpComponent->BindAction(IA_Fire, ETriggerEvent::Completed, this, &AFPSCharacter::StopFire);
@@ -129,6 +142,16 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	EInpComponent->BindAction(IA_Scoreboard, ETriggerEvent::Started, this, &AFPSCharacter::Scoreboard);
 }
 
+void AFPSCharacter::PlayerInputSprintStart(const FInputActionValue& Value)
+{
+	GetCharacterMovement()->MaxWalkSpeed *= SprintSpeedMultiplier;
+}
+
+void AFPSCharacter::PlayerInputSprintStop(const FInputActionValue& Value)
+{
+	GetCharacterMovement()->MaxWalkSpeed /= SprintSpeedMultiplier;
+}
+
 void AFPSCharacter::PlayerInputMove(const FInputActionValue& Value)
 {
 
@@ -138,12 +161,15 @@ void AFPSCharacter::PlayerInputMove(const FInputActionValue& Value)
 	// Got movement horizontally
 	if (InputValue.X)
 	{
+		// no increase in speed sideways when sprinting
 		AddMovementInput(GetActorRightVector(), InputValue.X);
 	}
 	// Got movement forward
 	if(InputValue.Y)
 	{
-		AddMovementInput(GetActorForwardVector(), InputValue.Y);
+		// y direction + sprint - if sprinting - assume direction == 1
+		AddMovementInput(GetActorForwardVector(), InputValue.Y);	
+		
 	}
 }
 

@@ -1,7 +1,7 @@
 {
   "FileVersion": 3,
   "Version": 1,
-  "VersionName": "2022.2.0.161",
+  "VersionName": "2023.1.0.163",
   "FriendlyName": "RiderLink",
   "Description": "Plugin for establishing IPC connection with JetBrains Rider IDE",
   "Category": "Programming",
@@ -10,8 +10,9 @@
   "DocsURL": "",
   "MarketplaceURL": "",
   "SupportURL": "",
+  "EnabledByDefault": true,
   "CanContainContent": false,
-  "IsBetaVersion": true,
+  "IsBetaVersion": false,
   "Installed": false,
   "Modules": [
     {
@@ -43,7 +44,17 @@
       "Name": "RiderShaderInfo",
       "Type": "EditorNoCommandlet",
       "LoadingPhase": "PostEngineInit"
+    },
+    {
+      "Name": "RiderLC",
+      "Type": "EditorNoCommandlet",
+      "LoadingPhase": "PostEngineInit",
+      "WhitelistPlatforms": [
+        "Win64"
+      ],
+      "PlatformAllowList": [
+        "Win64"
+      ]
     }
-  ],
-  "EnabledByDefault": true
+  ]
 }

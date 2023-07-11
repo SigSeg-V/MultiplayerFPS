@@ -3,6 +3,8 @@
 
 #include "serialization/Polymorphic.h"
 #include "RdTaskResult.h"
+#pragma warning(push)
+#pragma warning(disable : 4250)
 
 namespace rd
 {

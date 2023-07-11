@@ -11,9 +11,20 @@ AWeapon::AWeapon()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	// replicate over the network
+	bReplicates = true;
+	
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon Mesh"));
 	RootComponent = Mesh;
-	bReplicates = true;
+	Mesh->bOwnerNoSee = true;
+	Mesh->bCastHiddenShadow = true;
+
+	// Set up the mesh for the first person
+	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("First Person Weapon Mesh"));
+	FirstPersonMesh->SetupAttachment(RootComponent);
+	FirstPersonMesh->CastShadow = false;
+	FirstPersonMesh->bCastHiddenShadow = false;
+	FirstPersonMesh->bOnlyOwnerSee = true;
 }
 
 void AWeapon::SetOwner(AActor* NewOwner)
@@ -24,7 +35,7 @@ void AWeapon::SetOwner(AActor* NewOwner)
 
 void AWeapon::StartFire()
 {
-	// fire delay still upo so can't fire 
+	// fire delay still up so can't fire 
 	if (!bWantsFire || GetWorldTimerManager().GetTimerRemaining(FireTimer) > 0.f)
 	{
 		return;
@@ -87,7 +98,19 @@ void AWeapon::FireHitscan(FVector FireLocation, FVector FireDirection)
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// snap first person weapon to the first person arms 
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+
+	// server can't snap weapon to mesh
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		if (const AFPSCharacter* OwnerCharacter = Cast<AFPSCharacter>(OwnerPawn))
+		{
+			FirstPersonMesh->AttachToComponent(OwnerCharacter->GetFirstPersonMesh(),
+				FAttachmentTransformRules::SnapToTargetNotIncludingScale, "GripPoint");
+		}
+	}
 }
 
 void AWeapon::ServerStopFire_Implementation()

@@ -22,6 +22,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	USkeletalMeshComponent* Mesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	USkeletalMeshComponent* FirstPersonMesh;
+
+	UFUNCTION(BlueprintPure, Category = "Weapon")
+	FORCEINLINE class USkeletalMeshComponent* GetFirstPersonMesh() const { return FirstPersonMesh; }
+
+	UFUNCTION(BlueprintPure, Category = "Weapon")
+		FORCEINLINE class USkeletalMeshComponent* GetThirdPersonMesh() const { return Mesh; }
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FName Name;
 
