@@ -43,7 +43,7 @@ AFPSCharacter::AFPSCharacter()
 	Camera->SetupAttachment(FirstPersonMesh, "Camera");
 	
 	// Set movement constants
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed * SprintSpeedMultiplier;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	GetCharacterMovement()->JumpZVelocity = JumpVelocity;
 }
 
@@ -144,12 +144,12 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void AFPSCharacter::PlayerInputSprintStart(const FInputActionValue& Value)
 {
-	GetCharacterMovement()->MaxWalkSpeed *= SprintSpeedMultiplier;
+	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 }
 
 void AFPSCharacter::PlayerInputSprintStop(const FInputActionValue& Value)
 {
-	GetCharacterMovement()->MaxWalkSpeed /= SprintSpeedMultiplier;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
 void AFPSCharacter::PlayerInputMove(const FInputActionValue& Value)
